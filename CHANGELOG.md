@@ -1,5 +1,14 @@
 # Changelog
 
+## 1.1.0 - 2026-09-02
+
+- Reframed the repository as a concise portfolio case study.
+- Added a problem statement and individual-contribution section.
+- Added a GitHub-rendered system architecture diagram.
+- Documented the reference hardware/software stack and measured test results.
+- Added a sanitized validation-results image.
+- Added setup, reproduction, and portfolio-evidence instructions.
+
 ## 1.0.0 - 2026-09-02
 
 - Published the sanitized public architecture and workflow documentation.
