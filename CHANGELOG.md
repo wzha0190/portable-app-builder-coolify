@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.1.1 - 2026-09-02
+
+- Replaced portfolio-checklist headings with natural project-oriented titles and
+  removed first-person framing.
+
 ## 1.1.0 - 2026-09-02
 
 - Reframed the repository as a concise portfolio case study.

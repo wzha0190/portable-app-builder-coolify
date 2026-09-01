@@ -4,7 +4,7 @@ This portfolio project documents a harness-agnostic workflow that turns one
 application request into a tested application, a private GitHub repository, and
 a verified Coolify deployment.
 
-## Problem statement
+## The challenge
 
 AI coding harnesses could build an application, but reliably publishing and
 deploying it still required manual GitHub setup, Coolify onboarding, credential
@@ -28,10 +28,11 @@ configured and verified the selected coding harness, GitHub CLI, and the officia
 Coolify CLI. A completely fresh computer still requires the user to approve
 GitHub authentication and securely supply deployment credentials once.
 
-## Individual contribution
+## Design and implementation
 
-I designed the workflow contract and iteratively tested and hardened it against
-failures observed across multiple coding harnesses. My contribution included:
+The workflow contract was designed, tested, and iteratively hardened against
+failures observed across multiple coding harnesses. Work completed for this
+project included:
 
 - separating secure bootstrap responsibilities from unattended application work;
 - defining the compatibility contract for any selected coding harness;
@@ -46,7 +47,7 @@ failures observed across multiple coding harnesses. My contribution included:
 - defining the rendered-browser, revision, stability, and persistence completion
   gates.
 
-## Architecture
+## How it works
 
 ```mermaid
 flowchart LR
@@ -65,7 +66,7 @@ flowchart LR
 The setup agent receives confidential bootstrap values. Future runtime tasks
 receive only sanitized instructions and the application prompt.
 
-## Hardware and software stack
+## Reference stack
 
 | Layer | Reference stack |
 |---|---|
@@ -80,7 +81,7 @@ receive only sanitized instructions and the application prompt.
 
 Live detected versions and capabilities remain authoritative.
 
-## Test method and results
+## Validation
 
 The workflow was tested from the same command environment used by the target
 harness after a complete restart—not merely from the setup shell.
@@ -96,7 +97,7 @@ harness after a complete restart—not merely from the setup shell.
 | Canary application | Deploy through official CLI and check application state and `/healthz` | Running, healthy, HTTP 200 |
 | Publication security | Scan public content against known credentials and path/address patterns | No known secret, private address, UUID, or workstation path published |
 
-## Demonstration evidence
+## Validation snapshot
 
 The image below is a sanitized visual summary of the live reference checks. It
 omits credentials, internal addresses, hostnames, and resource identifiers.
@@ -107,7 +108,7 @@ These results validate the reference infrastructure and workflow contract. A
 fresh, unrepaired application run is still required before claiming universal
 one-shot reliability for a newly selected harness.
 
-## Design boundaries
+## Key engineering constraints
 
 This project intentionally does not use:
 
@@ -122,7 +123,7 @@ The private bootstrap used on the reference installation is deliberately **not
 included** here because it contains deployment and model-provider credentials.
 This repository explains the design and validation contract, not those secrets.
 
-## Documentation
+## Deep dives
 
 - [Architecture and trust boundaries](docs/ARCHITECTURE.md)
 - [Bootstrap procedure](docs/BOOTSTRAP.md)
@@ -133,7 +134,7 @@ This repository explains the design and validation contract, not those secrets.
 - [Problems found and lessons learned](docs/LESSONS-LEARNED.md)
 - [Change history](CHANGELOG.md)
 
-## Official components
+## Standard tooling
 
 - [GitHub CLI](https://cli.github.com/)
 - [Coolify](https://coolify.io/)
@@ -142,7 +143,7 @@ This repository explains the design and validation contract, not those secrets.
 `coollabsio/coolify-cli` is the project name. The executable is `coolify`; it is
 not an npm package and is never invoked as `coollabsio`.
 
-## Reproduce the approach
+## Run it yourself
 
 Start with [Setup and reproduction](docs/REPRODUCTION.md). Reproduction requires
 your own GitHub owner, Coolify installation, official CLI contexts, and securely
