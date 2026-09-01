@@ -11,4 +11,3 @@
 - Recorded the major failures discovered and the corrections applied.
 - Excluded the confidential bootstrap handoff, credentials, private identifiers,
   workstation paths, and internal endpoint values.
-

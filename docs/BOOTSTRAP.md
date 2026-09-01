@@ -69,4 +69,3 @@ The honest completion claim is:
 > Prompt-only builds after a one-time secure host and harness bootstrap.
 
 It is not “zero interaction from a bare computer.”
-

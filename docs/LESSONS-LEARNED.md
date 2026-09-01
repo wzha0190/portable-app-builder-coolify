@@ -92,4 +92,3 @@ across a normal redeployment.
 One-shot capability requires a fresh empty-project run to reach verified stable
 production without corrective user interaction. A repaired run is useful evidence
 but not that proof.
-

@@ -65,4 +65,3 @@ error is not treated as a pass.
 Do not open a public issue containing credentials, private infrastructure
 addresses, configuration dumps, or log excerpts with sensitive content. Revoke
 any accidentally exposed credential before sharing a sanitized report.
-

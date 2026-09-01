@@ -90,4 +90,3 @@ not an npm package and is never invoked as `coollabsio`.
 The reference installation was validated with Coolify CLI 1.8.0 and Coolify
 server 4.3.14. Live detected capabilities remain authoritative because CLI and
 server behavior can change.
-

@@ -60,4 +60,3 @@ networks, or Coolify servers.
 Resource identifiers are discovered from configured project, environment,
 server, destination, and source names at runtime. Machine paths and saved UUIDs
 are never treated as portable configuration.
-

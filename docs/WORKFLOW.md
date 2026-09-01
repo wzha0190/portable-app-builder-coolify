@@ -129,4 +129,3 @@ Recoverable failures are fixed, committed, pushed, redeployed, and reverified
 automatically. The runtime reports a blocker only for a missing decision,
 credential, permission, or external infrastructure failure it cannot safely
 correct within the authorized workflow.
-

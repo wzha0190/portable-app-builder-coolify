@@ -80,4 +80,3 @@ prove the workflow is one-shot capable.
 One-shot capability is proven only when a fresh application prompt begins in an
 empty authorized project and reaches stable verified production without
 corrective user interaction.
-
