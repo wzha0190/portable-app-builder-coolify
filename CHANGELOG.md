@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.1.2 - 2026-09-02
+
+- Replaced the synthetic validation graphic with a real failed-bootstrap capture.
+- Documented how the bootstrap stops before application work when authentication
+  is unavailable inside the target harness.
+
 ## 1.1.1 - 2026-09-02
 
 - Replaced portfolio-checklist headings with natural project-oriented titles and

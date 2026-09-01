@@ -97,16 +97,19 @@ harness after a complete restart—not merely from the setup shell.
 | Canary application | Deploy through official CLI and check application state and `/healthz` | Running, healthy, HTTP 200 |
 | Publication security | Scan public content against known credentials and path/address patterns | No known secret, private address, UUID, or workstation path published |
 
-## Validation snapshot
+## Failure example
 
-The image below is a sanitized visual summary of the live reference checks. It
-omits credentials, internal addresses, hostnames, and resource identifiers.
+The bootstrap is designed to stop before application work when the target
+harness cannot use the authenticated GitHub and Coolify environments. This real
+validation run passed 14 local capability checks but correctly reported
+`Bootstrap Incomplete` after authentication failed inside the harness's own
+command environment.
 
-![Sanitized reference validation results](assets/reference-validation.svg)
+![Failed bootstrap showing passed local checks and blocked GitHub and Coolify authentication](assets/bootstrap-incomplete-example.png)
 
-These results validate the reference infrastructure and workflow contract. A
-fresh, unrepaired application run is still required before claiming universal
-one-shot reliability for a newly selected harness.
+The result demonstrates the fail-closed acceptance boundary: success in another
+shell does not override failed authentication inside the restarted harness, and
+the later application prompt is not turned into credential onboarding.
 
 ## Key engineering constraints
 
