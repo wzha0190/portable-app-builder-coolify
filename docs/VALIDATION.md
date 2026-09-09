@@ -1,82 +1,58 @@
-# Production validation contract
+# Production validation
 
-A build, deployment command, platform status, or HTTP 200 is preliminary evidence.
-Completion requires the whole production gate.
+A successful push or HTTP response alone does not prove that the requested
+application is complete.
 
-## Requirement reconciliation
+## Development checks
 
-Re-read the original application prompt and verify every material feature against
-the deployed application. Omitted, reduced, undiscoverable, inaccessible, or
-unverified requirements fail the gate.
+Before pushing `main`, the development client verifies:
 
-## Source and deployment identity
+- every acceptance criterion in the GitHub work item is implemented;
+- formatting, lint, type checks and relevant tests pass;
+- the production build succeeds;
+- the container starts with the configured port and health behavior;
+- no secret or generated artifact is staged; and
+- the pushed commit equals the current remote `main` revision.
 
-Require all of the following:
+## Deployment checks
 
-- the repository is private and owned by the required GitHub owner;
-- the working tree is clean;
-- local `main` is pushed and tracks remote `main`;
-- the Coolify resource tracks `main` rather than a fixed commit unless immutable
-  deployment was explicitly requested;
-- the latest finished deployment's official commit field equals the full current
-  remote `main` SHA; and
-- exactly one intended managed production application exists.
+After the push, confirm that:
 
-## Rendered-browser verification
+- GitHub delivered the push event to the installed Coolify GitHub App;
+- the Coolify application still tracks `main` rather than a fixed commit;
+- the deployment finished for the expected `main` revision;
+- exactly one intended production application exists;
+- the container remains healthy through multiple health-check cycles; and
+- persistent data survives a normal redeployment when persistence is required.
 
-Open the production hostname in a rendered browser and verify:
+The LAN-side administrator performs checks requiring Coolify deployment state or
+logs. The remote client does not receive control-plane credentials merely for
+verification.
+
+## Rendered application checks
+
+Use the production hostname in a rendered browser and verify:
 
 - primary content is visible;
 - important features are discoverable;
 - representative interactions work;
-- loading, empty, stale, offline, partial-failure, and error states are not shown
-  incorrectly; and
-- relevant browser console errors and warnings are absent.
+- loading, empty, stale, offline, partial-failure and error states are accurate;
+- relevant console errors and warnings are absent; and
+- generated or analytical output is verified in its rendered form, not only as
+  an API response.
 
-An HTTP client alone cannot prove rendered or interactive behavior.
+## Repair loop
 
-For generated analysis or another core item-based interaction, open a
-representative production item and verify the complete rendered result rather
-than accepting only an API response.
+Application failures are corrected in the repository and pushed normally. The
+new push triggers another Coolify deployment through the same GitHub App path.
 
-## Stability observation
+Infrastructure failures—such as an unreachable webhook, missing source access,
+invalid runtime variable, unavailable server or reverse-proxy error—are repaired
+by the administrator inside the deployment network.
 
-Use a meaningful container startup grace period, interval, timeout, and retry
-count derived from observed behavior. Then wait through multiple complete health
-cycles and repeatedly verify:
+## End-to-end proof
 
-- deployment and application state;
-- `/healthz`;
-- the primary route;
-- a representative API route; and
-- the primary rendered interaction.
-
-A single immediate healthy observation is insufficient.
-
-## Persistence
-
-For a stateful application, create or select safe representative data, perform a
-normal redeployment of the same branch-tracking resource, wait through the full
-stability window, and prove the data survives. A genuinely stateless application
-records this check as not applicable instead of inventing persistence.
-
-## Automatic repair loop
-
-If any final check fails:
-
-1. diagnose the failure;
-2. repair it;
-3. commit and push source changes when needed;
-4. redeploy; and
-5. restart the entire final gate from requirement reconciliation.
-
-Do not report success and defer known repair work to the user.
-
-## One-shot proof
-
-A repaired run can prove that one application eventually completed. It does not
-prove the workflow is one-shot capable.
-
-One-shot capability is proven only when a fresh application prompt begins in an
-empty authorized project and reaches stable verified production without
-corrective user interaction.
+The workflow is proven when a freshly provisioned repository is implemented from
+its recorded GitHub work item, pushed from a development client without LAN or
+Coolify access, automatically deployed by Coolify and verified in production
+without routine control-plane intervention.

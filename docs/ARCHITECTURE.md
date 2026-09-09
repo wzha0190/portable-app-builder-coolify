@@ -1,62 +1,59 @@
 # Architecture and trust boundaries
 
-## Three separate roles
+## Four standard roles
 
-The design works only when three roles remain distinct.
+### Administrator
 
-### Setup agent
+The administrator operates from the deployment network and owns first-time
+control-plane work: repository creation, GitHub App repository access, Coolify
+resource creation, domains, variables, storage, health configuration and Auto
+Deploy.
 
-The setup agent receives the confidential bootstrap handoff. It may configure
-the selected harness, authenticate official CLIs, install the sanitized runtime
-payload, restart the harness, and run non-mutating acceptance checks.
+### Development client
 
-It owns credential onboarding. A later application task must never become an
-authentication or workstation-setup task.
+The development client can operate from any network. It authenticates to GitHub,
+clones the prepared repository, implements the recorded work item, tests locally
+and pushes `main`. It does not receive Coolify credentials or direct LAN access.
 
-### Target harness
+The client may be a person, IDE, coding agent or CI runner. The deployment design
+does not depend on a particular harness.
 
-The target harness is the user-selected coding product. It receives runtime
-instructions through its own officially documented native instruction mechanism.
-It must provide:
+### GitHub
 
-- durable instructions;
-- a persistent command environment;
-- native unattended permissions sufficient for the workflow;
-- reliable stdout, stderr, and exit status capture;
-- task continuation and context management; and
-- rendered-browser testing or permission to use ordinary browser tools.
+GitHub is the shared source of truth for code, branch state, repository access
+and application requirements. A GitHub issue or versioned specification replaces
+private agent-to-agent prompt handoffs.
 
-The design does not prescribe a specific harness, shell, editor, configuration
-file, path, approval mode, or execution backend.
+### Coolify
 
-### Runtime application agent
+Coolify owns build and deployment state. Its GitHub App reads the configured
+repository and receives push events. The application resource tracks `main` and
+deploys the pushed revision through Auto Deploy.
 
-The runtime agent receives only:
+## Trust boundaries
 
-1. the installed, sanitized runtime instructions; and
-2. a prompt beginning `BUILD APP COOLIFY:`.
+```text
+Remote development environment
+    GitHub credentials and repository contents
+                 |
+                 | HTTPS Git push
+                 v
+GitHub organization and GitHub App
+                 |
+                 | authenticated webhook
+                 v
+Private deployment network
+    Coolify credentials, runtime secrets and deployment logs
+```
 
-It consumes already configured official CLI authentication. It does not read the
-bootstrap handoff, receive credentials, authenticate accounts, or repair CLI
-contexts.
+The webhook endpoint is the only inbound path GitHub needs. The Coolify dashboard
+and API do not need to be exposed to development clients.
 
-## Compatibility contract
+## Portability
 
-A harness is compatible only if its documented native mechanisms can preserve
-the effective model, permissions, command environment, instruction scope, and
-credential access after a complete restart. If it intentionally isolates those
-resources and has no supported persistent alternative, it is incompatible.
+Portability comes from the Git protocol and GitHub-hosted work item, not from
+copying a harness configuration between computers. Any development client that
+can authenticate to GitHub, edit the repository and push `main` can participate.
 
-The correct response to incompatibility is to report it—not to add a wrapper,
-credential broker, hidden integration, or undocumented configuration hack.
-
-## Portability definition
-
-Portable means the workflow can be bootstrapped on another authorized computer
-on the same network without copying workstation paths or harness internals. It
-does not mean that one bootstrap automatically targets arbitrary GitHub owners,
-networks, or Coolify servers.
-
-Resource identifiers are discovered from configured project, environment,
-server, destination, and source names at runtime. Machine paths and saved UUIDs
-are never treated as portable configuration.
+Infrastructure identifiers and credentials remain control-plane configuration.
+They are not embedded in source, prompts or portable runtime rules.

@@ -1,131 +1,85 @@
-# Application workflow
+# Development and deployment workflow
 
-The workflow activates only when a user message begins with:
+## 1. Record the work
 
-```text
-BUILD APP COOLIFY:
-```
+The application brief, constraints and acceptance criteria are recorded in a
+GitHub issue or a versioned repository specification. The work item is the
+authoritative requirement source.
 
-Ordinary coding tasks do not publish or deploy merely because they mention
-GitHub, containers, or Coolify.
+The development client receives only:
 
-## 1. Establish authorized project scope
+- the repository URL;
+- the work-item reference;
+- the production branch (`main`); and
+- the public application URL when remote production verification is required.
 
-The harness determines the authorized filesystem scope at runtime. An existing
-opened project supplies the project root. Otherwise, a new project is created
-only within a directory the harness identifies as authorized.
+## 2. Prepare the control plane
 
-Paths are never inferred from documentation, previous computers, examples, or
-model memory.
+Before remote development starts, the administrator:
 
-## 2. Run the same-environment preflight
+1. creates the private repository under the required organization;
+2. creates an initial `main` branch;
+3. grants the existing Coolify GitHub App access to the repository;
+4. creates one Coolify application from that repository;
+5. configures the project, environment, server, branch and build settings;
+6. configures domains, persistent storage and runtime variables as required;
+7. enables Auto Deploy; and
+8. verifies that GitHub can reach the configured webhook endpoint.
 
-Through the harness's normal command tool, the runtime independently verifies:
+The initial commit may contain only ordinary repository metadata and the work
+specification. It does not need to masquerade as a deployable application.
 
-- required package tooling when applicable;
-- Git and GitHub CLI resolution;
-- GitHub authentication and identity;
-- active membership and repository-creation authority for the required owner;
-- HTTPS Git transport to an accessible private repository;
-- official Coolify CLI resolution and version;
-- Coolify context authentication;
-- project, environment, server, destination, source, and application inventory;
-- server reachability and usability;
-- non-mutating write, deploy, and log authorization probes;
-- LAN wildcard DNS and reverse-proxy reachability; and
-- required shared-variable metadata without retrieving secrets.
+## 3. Build from any network
 
-Failure stops the run as `bootstrap incomplete`. Runtime never authenticates or
-requests credentials.
+The remote development client clones the prepared repository and verifies that
+`origin` points to it. It implements every acceptance criterion, adds appropriate
+tests, runs the production build locally and checks container behavior when the
+repository uses containers.
 
-## 3. Build the complete application
+A normal single-service web application should:
 
-Every material prompt requirement becomes an explicit acceptance check. The
-runtime implements the complete requested product, adds relevant automated tests,
-runs formatting/lint/type checks where applicable, runs the production build,
-and exercises representative local behavior.
+- listen on the port configured in Coolify;
+- bind to `0.0.0.0` inside the container;
+- provide a meaningful `GET /healthz` endpoint; and
+- define a tolerant container health check.
 
-A normal single-service web application:
+The client scans staged content for secrets and generated artifacts, commits the
+completed implementation and pushes `main`.
 
-- listens on `0.0.0.0:3000`;
-- exposes an unauthenticated `GET /healthz` endpoint;
-- includes a production Dockerfile; and
-- defines a tolerant, meaningful container `HEALTHCHECK`.
+## 4. Deploy through the GitHub App
 
-The health endpoint validates required application and persistence readiness,
-not merely that a process is listening.
+The push event is delivered to Coolify through the installed GitHub App. Coolify
+pulls the current `main` revision and runs its normal build-and-deploy pipeline.
 
-## 4. Publish to GitHub
+No remote command calls the Coolify API. No deploy webhook, GitHub Action,
+wrapper, credential broker or copied Coolify token is required for this path.
 
-The runtime:
+## 5. Verify production
 
-1. derives and normalizes a repository name;
-2. initializes Git when needed while preserving existing history and remotes;
-3. establishes `main` safely;
-4. reviews staged content for secrets and generated artifacts;
-5. creates a private repository under the configured required owner;
-6. configures or verifies the exact `origin`;
-7. commits and pushes `main`; and
-8. verifies private visibility, upstream tracking, clean worktree state, and SHA
-   equality between local and remote `main`.
+When the application has a public hostname, the development client waits for the
+new deployment and verifies the rendered application through that hostname.
+GitHub branch state identifies the expected revision.
 
-The authenticated personal account is the acting identity, not an automatic
-repository owner. Publication never silently falls back to that personal
-account.
+Operational deployment state and logs remain available to the LAN-side
+administrator. If the deployment fails for infrastructure reasons, the
+administrator diagnoses Coolify without giving the remote client management
+credentials.
 
-## 5. Provision and deploy with the official Coolify CLI
+For private-only applications, the administrator performs production-network
+verification because the remote client cannot reach the private hostname.
 
-The runtime resolves live identifiers and verifies that the private repository
-and `main` branch are visible through the configured GitHub App/source.
+## 6. Continue normal development
 
-It reuses an existing application only when ownership is unambiguous. A managed
-tag is an ownership marker, not proof of current project placement or source.
-Current placement is reasserted through the official environment-move operation,
-and the primary destination is independently validated.
-
-For a new application, the workflow supplies the resolved server, project,
-environment, destination, source, repository, branch, exposed port, domain, and
-ownership tag. It does not deploy until resource variables and storage are ready.
-
-The normal domain value includes the internal container port as routing metadata:
+Subsequent changes follow the same standard loop:
 
 ```text
-http://<repository-name>.<lan-address>.sslip.io:3000
+GitHub issue or pull request
+    → development and tests
+    → push or merge to main
+    → GitHub App webhook
+    → Coolify Auto Deploy
+    → production verification
 ```
 
-Users visit the portless hostname. No fixed host-port mapping is allocated, and
-any possible stale mapping is authoritatively cleared before deployment.
-
-The duplicate platform application-health switch remains disabled. Container
-health is owned by the Dockerfile or Compose definition, while `/healthz` is
-also tested externally through the production hostname.
-
-## 6. Optional runtime AI
-
-Application code uses a provider-neutral server-side contract:
-
-```text
-AI_API_KEY
-AI_BASE_URL
-AI_MODEL
-```
-
-When the application prompt requires AI, resource-level variables reference
-environment-scoped shared variables through Coolify's native interpolation.
-The key is runtime-only and build-time-disabled. It never enters source code,
-browser bundles, logs, health responses, diagnostics, or task state.
-
-Successful AI validation requires genuine provider-backed behavior. A silent
-heuristic fallback does not count unless the prompt permits it and the UI labels
-it clearly.
-
-## 7. Monitor and repair
-
-Deployment state and deployment logs are the primary evidence for build and
-orchestration failures. Application logs are used for running containers. Debug
-log modes that can expose hidden commands are prohibited.
-
-Recoverable failures are fixed, committed, pushed, redeployed, and reverified
-automatically. The runtime reports a blocker only for a missing decision,
-credential, permission, or external infrastructure failure it cannot safely
-correct within the authorized workflow.
+Additional Coolify provisioning is needed only when infrastructure requirements
+change, such as a new service, domain, volume or secret.

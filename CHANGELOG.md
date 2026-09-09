@@ -1,5 +1,18 @@
 # Changelog
 
+## 2.0.0 - 2026-09-09
+
+- Replaced direct, per-harness Coolify authentication with the standard GitHub
+  App and Auto Deploy workflow.
+- Separated LAN-side repository/resource provisioning from remote development.
+- Made GitHub issues or repository specifications the normal work handoff.
+- Limited remote development clients to GitHub access; Coolify credentials and
+  private-network access remain on the control plane.
+- Replaced the harness bootstrap guide with an administrator provisioning guide.
+- Updated validation, reproduction, security and troubleshooting responsibilities
+  for push-triggered deployments.
+- Removed the obsolete failed-bootstrap illustration from the current tree.
+
 ## 1.1.2 - 2026-09-02
 
 - Replaced the synthetic validation graphic with a real failed-bootstrap capture.
@@ -14,20 +27,8 @@
 ## 1.1.0 - 2026-09-02
 
 - Reframed the repository as a concise portfolio case study.
-- Added a problem statement and individual-contribution section.
-- Added a GitHub-rendered system architecture diagram.
-- Documented the reference hardware/software stack and measured test results.
-- Added a sanitized validation-results image.
-- Added setup, reproduction, and portfolio-evidence instructions.
+- Added architecture, implementation, validation and reproduction documentation.
 
 ## 1.0.0 - 2026-09-02
 
-- Published the sanitized public architecture and workflow documentation.
-- Documented bootstrap/runtime separation and harness compatibility.
-- Documented official GitHub and Coolify CLI publication and deployment.
-- Documented LAN routing, health, persistence, rendered-browser, and stability
-  validation requirements.
-- Documented optional provider-neutral server-side AI configuration.
-- Recorded the major failures discovered and the corrections applied.
-- Excluded the confidential bootstrap handoff, credentials, private identifiers,
-  workstation paths, and internal endpoint values.
+- Published the initial sanitized workflow documentation.
