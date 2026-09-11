@@ -97,6 +97,13 @@ write access. A fine-grained personal access token with repository Contents
 read/write permission is also valid when the target computer uses HTTPS and the
 organization's token policy permits it.
 
+If organization policy disables deploy keys and no approved fine-grained token
+is available, an existing GitHub OAuth token with repository write permission
+may be handed off through a standard Git credential helper. Because that token
+can authorize more than one repository, the execution record must state its
+scope, require restricted storage on the development computer, and require
+rotation after delivery.
+
 The setup agent verifies the chosen credential by cloning the prepared private
 repository and performing a non-mutating push authorization check with ordinary
 Git. A successful API request or GitHub login elsewhere is not sufficient.
@@ -255,6 +262,9 @@ history, logs, screenshots, health responses, or browser code.
   automation throughout the workflow.
 - Recorded direct Coolify administration through the existing authorized
   Proxmox host access as an allowed standard LAN-side mechanism.
+- Documented standard HTTPS OAuth authentication through a Git credential helper
+  as the fallback when organization policy disables deploy keys, including its
+  broader-scope and rotation requirements.
 
 ## Official references
 
