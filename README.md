@@ -1,113 +1,134 @@
-# GitHub-to-Coolify Deployment Workflow
+# One-shot GitHub-to-Coolify application delivery
 
-This repository documents a conventional GitHub App deployment workflow for
-building applications from any development computer while keeping the Coolify
-management plane private.
-
-## What this solves
-
-Development clients may be outside the deployment network and may use different
-editors or coding agents. Giving every client direct Coolify access creates
-unnecessary credential, networking, and compatibility problems.
-
-The adopted workflow separates one-time infrastructure provisioning from normal
-development:
-
-- a LAN-side administrator creates the repository and Coolify resource;
-- application requirements are recorded in a normal GitHub issue or repository
-  specification;
-- a development client works through GitHub from any network; and
-- Coolify deploys the tracked production branch when its GitHub App receives the
-  push event.
+This repository documents one standard workflow for building an application on
+another computer and deploying it to Coolify without giving that computer LAN
+access.
 
 ## Deployment path
 
-```mermaid
-flowchart LR
-    O[Application request] --> I[GitHub issue or repository specification]
-    A[LAN administrator] --> R[Private GitHub repository]
-    A --> C[Coolify application tracking main]
-    I --> D[Development client on any network]
-    R --> D
-    D -->|push main| G[GitHub]
-    G -->|GitHub App webhook| C
-    C --> B[Build and deploy]
-    B --> P[Production hostname]
-    P --> V[Application verification]
+```text
+application request
+    -> LAN-side setup agent
+    -> private GitHub repository + configured Coolify application
+    -> one confidential development prompt
+    -> development agent on another computer
+    -> Git push to main
+    -> Coolify GitHub App event
+    -> Coolify Auto Deploy
+    -> public application verification
 ```
 
-The development client needs GitHub access, not a Coolify token, Coolify CLI
-context, VPN, or LAN route. Direct Coolify access remains with the administrator
-for first-time resource creation and infrastructure diagnosis.
+The development computer does not need GitHub CLI or Coolify access. It uses
+ordinary Git with working repository write credentials supplied in the
+confidential handoff. GitHub CLI is optional and must not be assumed.
 
-## Responsibilities
+## Information supplied to the setup agent
 
-| Role | Responsibility |
-|---|---|
-| Administrator | Create the private repository, seed `main`, grant the existing GitHub App access, create the Coolify application, configure domains, variables and health behavior, and enable Auto Deploy |
-| Development client | Clone the prepared repository, implement the linked work item, test locally, and push the completed revision to `main` |
-| GitHub | Store source, enforce repository access, and deliver authenticated push events to Coolify |
-| Coolify | Pull the configured branch, build the application, inject runtime variables, route the hostname, and retain deployment logs |
+Provide:
 
-## Reference stack
+- the application name;
+- the complete application requirements and acceptance criteria;
+- the intended public hostname;
+- required persistent storage or database behavior; and
+- required server-side services or runtime variables.
 
-| Layer | Reference stack |
-|---|---|
-| Source control | Private GitHub organization repositories |
-| Work specification | GitHub issue or versioned repository documentation |
-| Source integration | Coolify GitHub App installed for the required organization repositories |
-| Production branch | `main` |
-| Deployment | Coolify Auto Deploy from GitHub push events |
-| Application runtime | Dockerfile or Docker Compose behind Coolify's proxy |
-| Public ingress | DNS and an operator-managed HTTPS reverse proxy when required |
-| Optional application AI | Provider-neutral server-side variables supplied by Coolify |
+## LAN-side setup
 
-Live platform versions and capabilities are authoritative.
+Before producing the development prompt, the setup agent:
 
-## Normal operating sequence
+1. Creates a private repository under `wzha0190-software-factory` with `main` as
+   the production branch.
+2. Gives the existing Coolify GitHub App access to that repository.
+3. Creates exactly one application in the `Software Factory` project and
+   `production` environment from that GitHub App source and branch.
+4. Configures the build method, internal application port, public hostname,
+   runtime variables, persistent storage, and health behavior required by the
+   requested application.
+5. Enables Coolify Auto Deploy and verifies that GitHub can deliver events to
+   the configured Coolify webhook endpoint.
+6. Prepares a standard GitHub-supported repository write credential for the
+   development environment and verifies that it can clone and push without
+   GitHub CLI. The credential can use HTTPS or SSH according to the target
+   environment's ordinary Git support.
+7. Returns one confidential, self-contained development prompt.
 
-1. The administrator receives the application brief.
-2. A private organization repository is created with an initial `main` branch.
-3. The brief and acceptance criteria are recorded in a GitHub issue or repository
-   specification.
-4. A Coolify application is created from that repository through the existing
-   GitHub App and configured to track `main` with Auto Deploy enabled.
-5. The development client is given the repository URL and work-item reference.
-6. The development client builds and tests the application, then pushes `main`.
-7. GitHub notifies Coolify, which builds and deploys the pushed revision.
-8. The production hostname and representative application behavior are verified.
+The setup agent prepares the repository and deployment resource. It does not
+implement the application.
 
-No agent-to-agent bootstrap document or generated deployment prompt is required.
-A coding agent may still receive a short task such as “implement issue #1 in this
-repository,” but GitHub remains the source of truth for requirements and state.
+## Required handoff prompt
 
-## Security boundary
+The returned prompt contains:
 
-The remote development environment receives only repository access. Coolify
-credentials, deployment-provider secrets, internal addresses, CLI configuration,
-and infrastructure logs remain outside the application repository and remote
-task context.
+- the repository clone URL and required Git authentication details;
+- the production branch, `main`;
+- the complete application specification and acceptance criteria;
+- the build, port, health, persistence, and runtime-variable contract;
+- the public production URL;
+- instructions to build, test, commit, and push the complete application; and
+- instructions to wait for Auto Deploy, verify production, and automatically
+  repair application failures before reporting completion.
 
-Application secrets are stored in Coolify and injected server-side at runtime.
-They must not enter source code, browser bundles, build output, screenshots, or
-GitHub issues.
+The handoff is the complete work order. No second user prompt is required.
 
-## Documentation
+Repository credentials in the confidential handoff are for Git access only.
+The development agent may configure and use them, but must not copy them into
+application files, commits, build artifacts, logs, screenshots, browser code,
+or the deployed application.
 
-- [Architecture and trust boundaries](docs/ARCHITECTURE.md)
-- [Administrator provisioning](docs/PROVISIONING.md)
-- [Development and deployment workflow](docs/WORKFLOW.md)
-- [Production validation](docs/VALIDATION.md)
-- [Setup and reproduction](docs/REPRODUCTION.md)
-- [Security model](docs/SECURITY.md)
-- [Lessons learned](docs/LESSONS-LEARNED.md)
-- [Change history](CHANGELOG.md)
+## Development-agent run
+
+From the single handoff prompt, the development agent:
+
+1. Configures the supplied Git repository authentication using the target
+   environment's standard Git mechanism.
+2. Clones the prepared repository and confirms the intended remote and `main`
+   branch.
+3. Implements every stated requirement.
+4. Runs relevant tests and a production build, including a local container test
+   when the application is containerized.
+5. Checks that no supplied credential is part of the staged content.
+6. Commits and pushes `main` with ordinary Git.
+7. Waits for the public application to reflect the pushed revision.
+8. Verifies the rendered application and representative interactions against
+   every acceptance criterion.
+9. If an application defect is found, fixes it, retests, pushes again, and
+   repeats production verification automatically.
+
+The push is the deployment trigger. The development agent needs no access to
+the deployment LAN.
+
+## Completion contract
+
+The run is complete only when:
+
+- the implementation satisfies every requirement;
+- tests and the production build pass;
+- the working tree is clean and `main` is pushed;
+- the deployed application reflects the current remote `main` revision;
+- health and required persistence behavior pass; and
+- the public rendered application and representative interactions work.
+
+One-shot means the user supplies the application request once and pastes the
+resulting development prompt once. Usable GitHub write access is included in
+that handoff.
+
+## Standard mechanisms only
+
+This workflow uses:
+
+- ordinary Git authentication and push;
+- a Coolify GitHub App source;
+- GitHub push events; and
+- Coolify Auto Deploy.
+
+No additional deployment integration is inserted between GitHub and Coolify.
 
 ## Official references
 
-- [Coolify: Set up a GitHub App](https://coolify.io/docs/applications/ci-cd/github/setup-app)
-- [Coolify: GitHub Auto Deploy](https://coolify.io/docs/applications/ci-cd/github/auto-deploy)
-- [GitHub CLI](https://cli.github.com/)
-- [Coolify CLI repository](https://github.com/coollabsio/coolify-cli)
+- [GitHub remote repository access](https://docs.github.com/en/get-started/git-basics/about-remote-repositories)
+- [GitHub repository authentication options](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/managing-deploy-keys)
+- [Coolify GitHub App setup](https://coolify.io/docs/applications/sources/github/app)
+- [Coolify automatic deployments](https://coolify.io/docs/applications/deployments/automatic-deployments)
 
-`coollabsio/coolify-cli` is the project name; the executable is `coolify`.
+Current official product documentation is authoritative when product behavior
+changes.
