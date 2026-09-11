@@ -64,6 +64,12 @@ Before producing the development prompt, the setup agent:
 The setup agent prepares the repository and deployment resource. It does not
 implement the application.
 
+The LAN-side setup agent must not use computer-use, screen-control, desktop UI
+automation, or browser UI automation. It performs setup through command-line
+access and standard provider interfaces. Direct Coolify administration through
+the existing authorized Proxmox host access details is part of this standard
+LAN-side workflow and is not custom glue.
+
 ## Configuration ownership
 
 For a non-Compose application, Coolify owns the applicable build, domain, port,
@@ -192,7 +198,7 @@ act as an alternate deployment control plane.
 The setup and development agents must not create or use custom glue, including:
 
 - helper or wrapper deployment scripts;
-- custom CLIs, daemons, agents, or direct Coolify API clients;
+- custom CLIs, daemons, agents, or abstraction layers around Coolify;
 - GitHub Actions deployment workflows;
 - additional repository webhooks, webhook relays, or event bridges;
 - credential brokers or authentication proxies;
@@ -203,6 +209,11 @@ The setup and development agents must not create or use custom glue, including:
 
 When the standard path cannot satisfy a request, the agent records the blocker
 and stops. It does not invent an alternate integration.
+
+Computer-use, screen-control, desktop UI automation, and browser UI automation
+are prohibited for setup and verification. This prohibition does not prevent
+direct use of Coolify through the existing authorized Proxmox host access,
+Coolify's native interfaces, or the official Coolify CLI.
 
 ## Required application record
 
@@ -240,6 +251,10 @@ history, logs, screenshots, health responses, or browser code.
 - Replaced the custom public revision-marker requirement with native Coolify
   deployment history plus public verification of the pushed application
   behavior.
+- Prohibited computer-use, screen-control, desktop UI automation, and browser UI
+  automation throughout the workflow.
+- Recorded direct Coolify administration through the existing authorized
+  Proxmox host access as an allowed standard LAN-side mechanism.
 
 ## Official references
 
